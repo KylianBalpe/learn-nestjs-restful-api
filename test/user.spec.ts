@@ -76,4 +76,58 @@ describe('UserController', () => {
       expect(response.body.errors).toBeDefined();
     });
   });
+
+  describe('POST /v1/login', () => {
+    beforeEach(async () => {
+      await testService.deleteUser();
+      await testService.createUser();
+    });
+
+    it('should be rejected if request invalid', async () => {
+      const response = await request(app.getHttpServer())
+        .post('/v1/login')
+        .send({
+          username: '',
+          password: '',
+          name: '',
+        });
+
+      logger.info(response.body);
+
+      expect(response.status).toBe(400);
+      expect(response.body.errors).toBeDefined();
+    });
+
+    it('should be able to login', async () => {
+      const response = await request(app.getHttpServer())
+        .post('/v1/login')
+        .send({
+          username: 'test',
+          password: 'rahasia',
+          name: 'test',
+        });
+
+      logger.info(response.body);
+
+      expect(response.status).toBe(200);
+      expect(response.body.data.username).toBe('test');
+      expect(response.body.data.name).toBe('test');
+      expect(response.body.data.token).toBeDefined();
+    });
+
+    it('should be rejected if username or password is invalid', async () => {
+      const response = await request(app.getHttpServer())
+        .post('/v1/login')
+        .send({
+          username: 'rahasia',
+          password: 'test',
+          name: 'test',
+        });
+
+      logger.info(response.body);
+
+      expect(response.status).toBe(400);
+      expect(response.body.errors).toBeDefined();
+    });
+  });
 });
