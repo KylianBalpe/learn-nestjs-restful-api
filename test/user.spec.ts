@@ -89,7 +89,6 @@ describe('UserController', () => {
         .send({
           username: '',
           password: '',
-          name: '',
         });
 
       logger.info(response.body);
@@ -104,7 +103,6 @@ describe('UserController', () => {
         .send({
           username: 'test',
           password: 'rahasia',
-          name: 'test',
         });
 
       logger.info(response.body);
@@ -121,7 +119,6 @@ describe('UserController', () => {
         .send({
           username: 'rahasia',
           password: 'test',
-          name: 'test',
         });
 
       logger.info(response.body);
