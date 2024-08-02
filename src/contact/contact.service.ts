@@ -1,10 +1,14 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { PrismaService } from '@/common/prisma.service';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { Logger } from 'winston';
 import { ValidationService } from '@/common/validation.service';
 import { User } from '@prisma/client';
-import { ContactResponse, CreateContactRequest } from '@/model/contact.model';
+import {
+  ContactResponse,
+  CreateContactRequest,
+  toContactResponse,
+} from '@/model/contact.model';
 import { ContactValidation } from '@/contact/contact.validation';
 
 @Injectable()
@@ -34,12 +38,21 @@ export class ContactService {
       },
     });
 
-    return {
-      id: contact.id,
-      first_name: contact.first_name,
-      last_name: contact.last_name,
-      email: contact.email,
-      phone: contact.phone,
-    };
+    return toContactResponse(contact);
+  }
+
+  async get(user: User, contactId: number): Promise<ContactResponse> {
+    const contact = await this.prismaService.contact.findFirst({
+      where: {
+        id: contactId,
+        user_id: user.id,
+      },
+    });
+
+    if (!contact) {
+      throw new HttpException('Contact not found', HttpStatus.NOT_FOUND);
+    }
+
+    return toContactResponse(contact);
   }
 }
