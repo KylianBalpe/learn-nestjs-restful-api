@@ -15,3 +15,8 @@ export class LoginRequest {
   username: string;
   password: string;
 }
+
+export class UpdateUserRequest {
+  name?: string;
+  password?: string;
+}

@@ -157,4 +157,65 @@ describe('UserController', () => {
       expect(response.body.data.name).toBe('test');
     });
   });
+
+  describe('PATCH /v1/user', () => {
+    beforeEach(async () => {
+      await testService.deleteUser();
+      await testService.createUser();
+    });
+
+    it('should be rejected if request is invalid', async () => {
+      const response = await request(app.getHttpServer())
+        .patch('/v1/user')
+        .set('X-USER-TOKEN', 'test-token')
+        .send({
+          password: '',
+          name: '',
+        });
+
+      logger.info(response.body);
+
+      expect(response.status).toBe(400);
+      expect(response.body.errors).toBeDefined();
+    });
+
+    it('should be able to update password', async () => {
+      const response = await request(app.getHttpServer())
+        .patch('/v1/user')
+        .set('X-USER-TOKEN', 'test-token')
+        .send({
+          password: 'rahasia-baru',
+        });
+
+      logger.info(response.body);
+
+      expect(response.status).toBe(200);
+    });
+
+    it('should be able to update name', async () => {
+      const response = await request(app.getHttpServer())
+        .patch('/v1/user')
+        .set('X-USER-TOKEN', 'test-token')
+        .send({
+          name: 'test-baru',
+        });
+
+      logger.info(response.body);
+
+      expect(response.status).toBe(200);
+      expect(response.body.data.name).toBe('test-baru');
+    });
+
+    it('should be return unauthorized', async () => {
+      const response = await request(app.getHttpServer())
+        .patch('/v1/user')
+        .send({
+          name: 'test-baru',
+        });
+
+      logger.info(response.body);
+
+      expect(response.status).toBe(401);
+    });
+  });
 });
