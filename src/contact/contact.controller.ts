@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -68,6 +69,21 @@ export class ContactController {
       status: 'success',
       code: HttpStatus.OK,
       data: result,
+    };
+  }
+
+  @Delete('/contact/:contactId')
+  @HttpCode(HttpStatus.OK)
+  async remove(
+    @Auth() user: User,
+    @Param('contactId', ParseIntPipe) contactId: number,
+  ): Promise<WebResponse<any>> {
+    await this.contactService.get(user, contactId);
+
+    return {
+      status: 'success',
+      code: HttpStatus.OK,
+      message: 'Contact deleted successfully',
     };
   }
 }

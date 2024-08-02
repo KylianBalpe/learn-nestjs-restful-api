@@ -172,4 +172,37 @@ describe('ContactController', () => {
       expect(response.body.errors).toBeDefined();
     });
   });
+
+  describe('DELETE /v1/contact', () => {
+    beforeEach(async () => {
+      await testService.deleteContact();
+      await testService.deleteUser();
+
+      await testService.createUser();
+      await testService.createContact();
+    });
+
+    it('should be rejected if contact not found', async () => {
+      const contact = await testService.getContact();
+      const response = await request(app.getHttpServer())
+        .delete(`/v1/contact/${contact.id + 1}`)
+        .set('X-USER-TOKEN', 'test-token');
+
+      logger.info(response.body);
+
+      expect(response.status).toBe(404);
+      expect(response.body.errors).toBeDefined();
+    });
+
+    it('should be able to remove contact', async () => {
+      const contact = await testService.getContact();
+      const response = await request(app.getHttpServer())
+        .delete(`/v1/contact/${contact.id}`)
+        .set('X-USER-TOKEN', 'test-token');
+
+      logger.info(response.body);
+
+      expect(response.status).toBe(200);
+    });
+  });
 });
