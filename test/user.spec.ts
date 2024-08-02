@@ -180,7 +180,7 @@ describe('UserController', () => {
     });
 
     it('should be able to update password', async () => {
-      const response = await request(app.getHttpServer())
+      let response = await request(app.getHttpServer())
         .patch('/v1/user')
         .set('X-USER-TOKEN', 'test-token')
         .send({
@@ -190,6 +190,16 @@ describe('UserController', () => {
       logger.info(response.body);
 
       expect(response.status).toBe(200);
+
+      response = await request(app.getHttpServer()).post('/v1/login').send({
+        username: 'test',
+        password: 'rahasia-baru',
+      });
+
+      logger.info(response.body);
+
+      expect(response.status).toBe(200);
+      expect(response.body.data.token).toBeDefined();
     });
 
     it('should be able to update name', async () => {
