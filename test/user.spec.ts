@@ -127,4 +127,34 @@ describe('UserController', () => {
       expect(response.body.errors).toBeDefined();
     });
   });
+
+  describe('GET /v1/user', () => {
+    beforeEach(async () => {
+      await testService.deleteUser();
+      await testService.createUser();
+    });
+
+    it('should be rejected if token is invalid', async () => {
+      const response = await request(app.getHttpServer())
+        .get('/v1/user')
+        .set('X-USER-TOKEN', 'wrong');
+
+      logger.info(response.body);
+
+      expect(response.status).toBe(401);
+      expect(response.body.errors).toBeDefined();
+    });
+
+    it('should be able to get user', async () => {
+      const response = await request(app.getHttpServer())
+        .get('/v1/user')
+        .set('X-USER-TOKEN', 'test-token');
+
+      logger.info(response.body);
+
+      expect(response.status).toBe(200);
+      expect(response.body.data.username).toBe('test');
+      expect(response.body.data.name).toBe('test');
+    });
+  });
 });
