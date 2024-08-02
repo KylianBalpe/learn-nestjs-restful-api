@@ -205,4 +205,112 @@ describe('ContactController', () => {
       expect(response.status).toBe(200);
     });
   });
+
+  describe('GET /v1/contacts', () => {
+    beforeEach(async () => {
+      await testService.deleteContact();
+      await testService.deleteUser();
+
+      await testService.createUser();
+      await testService.createContact();
+    });
+
+    it('should be able to search contacts', async () => {
+      const response = await request(app.getHttpServer())
+        .get('/v1/contacts')
+        .set('X-USER-TOKEN', 'test-token');
+
+      logger.info(response.body);
+
+      expect(response.status).toBe(200);
+      expect(response.body.data.length).toBe(1);
+    });
+
+    it('should be able to search contacts by name', async () => {
+      const response = await request(app.getHttpServer())
+        .get('/v1/contacts')
+        .query({ name: 'es' })
+        .set('X-USER-TOKEN', 'test-token');
+
+      logger.info(response.body);
+
+      expect(response.status).toBe(200);
+      expect(response.body.data.length).toBe(1);
+    });
+
+    it('should be able to search contacts with wrong name', async () => {
+      const response = await request(app.getHttpServer())
+        .get('/v1/contacts')
+        .query({ name: 'wrong' })
+        .set('X-USER-TOKEN', 'test-token');
+
+      logger.info(response.body);
+
+      expect(response.status).toBe(200);
+      expect(response.body.data.length).toBe(0);
+    });
+
+    it('should be able to search contacts by email', async () => {
+      const response = await request(app.getHttpServer())
+        .get('/v1/contacts')
+        .query({ email: 'es' })
+        .set('X-USER-TOKEN', 'test-token');
+
+      logger.info(response.body);
+
+      expect(response.status).toBe(200);
+      expect(response.body.data.length).toBe(1);
+    });
+
+    it('should be able to search contacts with wrong email', async () => {
+      const response = await request(app.getHttpServer())
+        .get('/v1/contacts')
+        .query({ email: 'wrong' })
+        .set('X-USER-TOKEN', 'test-token');
+
+      logger.info(response.body);
+
+      expect(response.status).toBe(200);
+      expect(response.body.data.length).toBe(0);
+    });
+
+    it('should be able to search contacts by phone', async () => {
+      const response = await request(app.getHttpServer())
+        .get('/v1/contacts')
+        .query({ phone: '12' })
+        .set('X-USER-TOKEN', 'test-token');
+
+      logger.info(response.body);
+
+      expect(response.status).toBe(200);
+      expect(response.body.data.length).toBe(1);
+    });
+
+    it('should be able to search contacts with wrong phone', async () => {
+      const response = await request(app.getHttpServer())
+        .get('/v1/contacts')
+        .query({ phone: '78' })
+        .set('X-USER-TOKEN', 'test-token');
+
+      logger.info(response.body);
+
+      expect(response.status).toBe(200);
+      expect(response.body.data.length).toBe(0);
+    });
+
+    it('should be able to search contacts with page', async () => {
+      const response = await request(app.getHttpServer())
+        .get('/v1/contacts')
+        .query({ size: 1, page: 2 })
+        .set('X-USER-TOKEN', 'test-token');
+
+      logger.info(response.body);
+
+      expect(response.status).toBe(200);
+      expect(response.body.data.length).toBe(0);
+      expect(response.body.paging.current_page).toBe(2);
+      expect(response.body.paging.size).toBe(1);
+      expect(response.body.paging.total_page).toBe(1);
+    });
+  });
 });

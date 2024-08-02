@@ -7,10 +7,12 @@ import { Contact, User } from '@prisma/client';
 import {
   ContactResponse,
   CreateContactRequest,
+  SearchContactRequest,
   toContactResponse,
   UpdateContactRequest,
 } from '@/model/contact.model';
 import { ContactValidation } from '@/contact/contact.validation';
+import { WebResponse } from '@/model/web.model';
 
 @Injectable()
 export class ContactService {
@@ -99,5 +101,71 @@ export class ContactService {
     });
 
     return toContactResponse(contact);
+  }
+
+  async search(
+    user: User,
+    request: SearchContactRequest,
+  ): Promise<WebResponse<ContactResponse[]>> {
+    const searchRequest: SearchContactRequest = this.validationService.validate(
+      ContactValidation.SEARCH,
+      request,
+    );
+
+    const filters = [];
+
+    if (searchRequest.name) {
+      filters.push({
+        OR: [
+          {
+            first_name: { contains: searchRequest.name },
+          },
+          {
+            last_name: { contains: searchRequest.name },
+          },
+        ],
+      });
+    }
+
+    if (searchRequest.email) {
+      filters.push({
+        email: { contains: searchRequest.email },
+      });
+    }
+
+    if (searchRequest.phone) {
+      filters.push({
+        phone: { contains: searchRequest.phone },
+      });
+    }
+
+    const skip = (searchRequest.page - 1) * searchRequest.size;
+
+    const contacts = await this.prismaService.contact.findMany({
+      where: {
+        user_id: user.id,
+        AND: filters,
+      },
+      take: searchRequest.size,
+      skip: skip,
+    });
+
+    const total = await this.prismaService.contact.count({
+      where: {
+        user_id: user.id,
+        AND: filters,
+      },
+    });
+
+    return {
+      status: 'success',
+      code: HttpStatus.OK,
+      data: contacts.map((contact) => toContactResponse(contact)),
+      paging: {
+        current_page: searchRequest.page,
+        size: searchRequest.size,
+        total_page: Math.ceil(total / searchRequest.size),
+      },
+    };
   }
 }
