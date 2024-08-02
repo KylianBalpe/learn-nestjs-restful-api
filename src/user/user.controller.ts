@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -74,6 +75,18 @@ export class UserController {
       status: 'success',
       code: HttpStatus.OK,
       data: result,
+    };
+  }
+
+  @Delete('/user')
+  @HttpCode(HttpStatus.OK)
+  async logout(@Auth() user: User): Promise<WebResponse<any>> {
+    await this.userService.logout(user);
+
+    return {
+      status: 'success',
+      code: HttpStatus.OK,
+      message: 'Logout success',
     };
   }
 }

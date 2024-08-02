@@ -228,4 +228,35 @@ describe('UserController', () => {
       expect(response.status).toBe(401);
     });
   });
+
+  describe('DELETE /v1/user', () => {
+    beforeEach(async () => {
+      await testService.deleteUser();
+      await testService.createUser();
+    });
+
+    it('should be rejected if token is invalid', async () => {
+      const response = await request(app.getHttpServer())
+        .delete('/v1/user')
+        .set('X-USER-TOKEN', 'wrong');
+
+      logger.info(response.body);
+
+      expect(response.status).toBe(401);
+      expect(response.body.errors).toBeDefined();
+    });
+
+    it('should be able to logout', async () => {
+      const response = await request(app.getHttpServer())
+        .delete('/v1/user')
+        .set('X-USER-TOKEN', 'test-token');
+
+      logger.info(response.body);
+
+      expect(response.status).toBe(200);
+
+      const user = await testService.getUser();
+      expect(user.token).toBeNull();
+    });
+  });
 });
