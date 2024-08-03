@@ -23,6 +23,14 @@ export class TestService {
     });
   }
 
+  async deleteAddress() {
+    await this.prismaService.address.deleteMany({
+      where: {
+        postal_code: '12345',
+      },
+    });
+  }
+
   async getUser(): Promise<User> {
     return this.prismaService.user.findFirst({
       where: {
