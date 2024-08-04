@@ -26,9 +26,7 @@ describe('AddressController', () => {
 
   describe('POST /v1/contact/:contactId/address', () => {
     beforeEach(async () => {
-      await testService.deleteAddress();
-      await testService.deleteContact();
-      await testService.deleteUser();
+      await testService.deleteAll();
       await testService.createUser();
       await testService.createContact();
     });
@@ -97,9 +95,7 @@ describe('AddressController', () => {
 
   describe('GET /v1/contact/:contactId/address/:addressId', () => {
     beforeEach(async () => {
-      await testService.deleteAddress();
-      await testService.deleteContact();
-      await testService.deleteUser();
+      await testService.deleteAll();
       await testService.createUser();
       await testService.createContact();
       await testService.createAddress();
@@ -151,9 +147,7 @@ describe('AddressController', () => {
 
   describe('PUT /v1/contact/:contactId/address/:addressId', () => {
     beforeEach(async () => {
-      await testService.deleteAddress();
-      await testService.deleteContact();
-      await testService.deleteUser();
+      await testService.deleteAll();
       await testService.createUser();
       await testService.createContact();
       await testService.createAddress();
@@ -246,9 +240,7 @@ describe('AddressController', () => {
 
   describe('DELETE /v1/contact/:contactId/address/:addressId', () => {
     beforeEach(async () => {
-      await testService.deleteAddress();
-      await testService.deleteContact();
-      await testService.deleteUser();
+      await testService.deleteAll();
       await testService.createUser();
       await testService.createContact();
       await testService.createAddress();
@@ -296,9 +288,7 @@ describe('AddressController', () => {
 
   describe('GET /v1/contact/:contactId/addresses', () => {
     beforeEach(async () => {
-      await testService.deleteAddress();
-      await testService.deleteContact();
-      await testService.deleteUser();
+      await testService.deleteAll();
       await testService.createUser();
       await testService.createContact();
       await testService.createAddress();

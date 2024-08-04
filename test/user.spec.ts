@@ -26,6 +26,7 @@ describe('UserController', () => {
 
   describe('POST /v1/register', () => {
     beforeEach(async () => {
+      await testService.deleteAll();
       await testService.deleteUser();
     });
 
@@ -79,7 +80,7 @@ describe('UserController', () => {
 
   describe('POST /v1/login', () => {
     beforeEach(async () => {
-      await testService.deleteUser();
+      await testService.deleteAll();
       await testService.createUser();
     });
 
@@ -130,7 +131,7 @@ describe('UserController', () => {
 
   describe('GET /v1/user', () => {
     beforeEach(async () => {
-      await testService.deleteUser();
+      await testService.deleteAll();
       await testService.createUser();
     });
 
@@ -160,7 +161,7 @@ describe('UserController', () => {
 
   describe('PATCH /v1/user', () => {
     beforeEach(async () => {
-      await testService.deleteUser();
+      await testService.deleteAll();
       await testService.createUser();
     });
 
@@ -231,7 +232,7 @@ describe('UserController', () => {
 
   describe('DELETE /v1/user', () => {
     beforeEach(async () => {
-      await testService.deleteUser();
+      await testService.deleteAll();
       await testService.createUser();
     });
 

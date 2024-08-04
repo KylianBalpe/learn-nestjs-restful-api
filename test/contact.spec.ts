@@ -26,8 +26,7 @@ describe('ContactController', () => {
 
   describe('POST /v1/contact', () => {
     beforeEach(async () => {
-      await testService.deleteContact();
-      await testService.deleteUser();
+      await testService.deleteAll();
       await testService.createUser();
     });
 
@@ -71,8 +70,7 @@ describe('ContactController', () => {
 
   describe('GET /v1/contact', () => {
     beforeEach(async () => {
-      await testService.deleteContact();
-      await testService.deleteUser();
+      await testService.deleteAll();
 
       await testService.createUser();
       await testService.createContact();
@@ -108,8 +106,7 @@ describe('ContactController', () => {
 
   describe('PUT /v1/contact', () => {
     beforeEach(async () => {
-      await testService.deleteContact();
-      await testService.deleteUser();
+      await testService.deleteAll();
 
       await testService.createUser();
       await testService.createContact();
@@ -175,8 +172,7 @@ describe('ContactController', () => {
 
   describe('DELETE /v1/contact', () => {
     beforeEach(async () => {
-      await testService.deleteContact();
-      await testService.deleteUser();
+      await testService.deleteAll();
 
       await testService.createUser();
       await testService.createContact();
@@ -208,8 +204,7 @@ describe('ContactController', () => {
 
   describe('GET /v1/contacts', () => {
     beforeEach(async () => {
-      await testService.deleteContact();
-      await testService.deleteUser();
+      await testService.deleteAll();
 
       await testService.createUser();
       await testService.createContact();
