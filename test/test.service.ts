@@ -71,4 +71,27 @@ export class TestService {
       },
     });
   }
+
+  async createAddress() {
+    const contact = await this.getContact();
+    return this.prismaService.address.create({
+      data: {
+        street: 'Jl. Test',
+        city: 'Jakarta',
+        province: 'DKI Jakarta',
+        country: 'Indonesia',
+        postal_code: '12345',
+        contact_id: contact.id,
+      },
+    });
+  }
+
+  async getAddress() {
+    const contact = await this.getContact();
+    return this.prismaService.address.findFirst({
+      where: {
+        contact_id: contact.id,
+      },
+    });
+  }
 }

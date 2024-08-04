@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { HttpException, Inject, Injectable } from '@nestjs/common';
 import { PrismaService } from '@/common/prisma.service';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { Logger } from 'winston';
@@ -7,6 +7,7 @@ import { User } from '@prisma/client';
 import {
   AddressResponse,
   CreateAddressRequest,
+  GetAddressRequest,
   toAddressResponse,
 } from '@/model/address.model';
 import { AddressValidation } from '@/address/address.validation';
@@ -41,6 +42,31 @@ export class AddressService {
     const address = await this.prismaService.address.create({
       data: createRequest,
     });
+
+    return toAddressResponse(address);
+  }
+
+  async get(user: User, request: GetAddressRequest): Promise<AddressResponse> {
+    this.logger.debug(
+      `AddressService.get: ${JSON.stringify(user)}, ${JSON.stringify(request)}`,
+    );
+    const getRequest: GetAddressRequest = this.validationService.validate(
+      AddressValidation.GET,
+      request,
+    );
+
+    await this.contactService.isContactExists(user.id, getRequest.contact_id);
+
+    const address = await this.prismaService.address.findFirst({
+      where: {
+        id: getRequest.address_id,
+        contact_id: getRequest.contact_id,
+      },
+    });
+
+    if (!address) {
+      throw new HttpException('Address not found', 404);
+    }
 
     return toAddressResponse(address);
   }

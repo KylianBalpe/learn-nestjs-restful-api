@@ -94,4 +94,58 @@ describe('AddressController', () => {
       expect(response.body.data.postal_code).toBe('12345');
     });
   });
+
+  describe('GET /v1/contact/:contactId/address/:addressId', () => {
+    beforeEach(async () => {
+      await testService.deleteAddress();
+      await testService.deleteContact();
+      await testService.deleteUser();
+      await testService.createUser();
+      await testService.createContact();
+      await testService.createAddress();
+    });
+
+    it('should be rejected if contact not found', async () => {
+      const contact = await testService.getContact();
+      const address = await testService.getAddress();
+      const response = await request(app.getHttpServer())
+        .get(`/v1/contact/${contact.id + 1}/address/${address.id}`)
+        .set('X-USER-TOKEN', 'test-token');
+
+      logger.info(response.body);
+
+      expect(response.status).toBe(404);
+      expect(response.body).toBeDefined();
+    });
+
+    it('should be rejected if address not found', async () => {
+      const contact = await testService.getContact();
+      const address = await testService.getAddress();
+      const response = await request(app.getHttpServer())
+        .get(`/v1/contact/${contact.id}/address/${address.id + 1}`)
+        .set('X-USER-TOKEN', 'test-token');
+
+      logger.info(response.body);
+
+      expect(response.status).toBe(404);
+      expect(response.body).toBeDefined();
+    });
+
+    it('should be able to get address', async () => {
+      const contact = await testService.getContact();
+      const address = await testService.getAddress();
+      const response = await request(app.getHttpServer())
+        .get(`/v1/contact/${contact.id}/address/${address.id}`)
+        .set('X-USER-TOKEN', 'test-token');
+
+      logger.info(response.body);
+
+      expect(response.status).toBe(200);
+      expect(response.body.data.street).toBe('Jl. Test');
+      expect(response.body.data.city).toBe('Jakarta');
+      expect(response.body.data.province).toBe('DKI Jakarta');
+      expect(response.body.data.country).toBe('Indonesia');
+      expect(response.body.data.postal_code).toBe('12345');
+    });
+  });
 });
