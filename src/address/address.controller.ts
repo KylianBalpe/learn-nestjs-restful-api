@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -79,6 +80,22 @@ export class AddressController {
       status: 'success',
       code: HttpStatus.OK,
       data: result,
+    };
+  }
+
+  @Delete('/address/:addressId')
+  @HttpCode(HttpStatus.OK)
+  async remove(
+    @Auth() user: User,
+    @Param('contactId', ParseIntPipe) contactId: number,
+    @Param('addressId', ParseIntPipe) addressId: number,
+  ): Promise<WebResponse<any>> {
+    await this.addressService.remove(user, contactId, addressId);
+
+    return {
+      status: 'success',
+      code: HttpStatus.OK,
+      message: 'Address deleted successfully',
     };
   }
 }

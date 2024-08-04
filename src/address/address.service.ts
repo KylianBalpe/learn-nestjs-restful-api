@@ -13,6 +13,7 @@ import {
 } from '@/model/address.model';
 import { AddressValidation } from '@/address/address.validation';
 import { ContactService } from '@/contact/contact.service';
+import { WebResponse } from '@/model/web.model';
 
 @Injectable()
 export class AddressService {
@@ -112,6 +113,27 @@ export class AddressService {
         contact_id: address.contact_id,
       },
       data: updateRequest,
+    });
+
+    return toAddressResponse(address);
+  }
+
+  async remove(
+    user: User,
+    contactId: number,
+    addressId: number,
+  ): Promise<AddressResponse> {
+    const contact = await this.contactService.isContactExists(
+      user.id,
+      contactId,
+    );
+    let address = await this.isAddressExists(contact.id, addressId);
+
+    address = await this.prismaService.address.delete({
+      where: {
+        id: address.id,
+        contact_id: address.contact_id,
+      },
     });
 
     return toAddressResponse(address);
