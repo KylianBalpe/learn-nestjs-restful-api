@@ -3,12 +3,13 @@ import { PrismaService } from '@/common/prisma.service';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { Logger } from 'winston';
 import { ValidationService } from '@/common/validation.service';
-import { User } from '@prisma/client';
+import { Address, User } from '@prisma/client';
 import {
   AddressResponse,
   CreateAddressRequest,
   GetAddressRequest,
   toAddressResponse,
+  UpdateAddressRequest,
 } from '@/model/address.model';
 import { AddressValidation } from '@/address/address.validation';
 import { ContactService } from '@/contact/contact.service';
@@ -21,6 +22,24 @@ export class AddressService {
     private validationService: ValidationService,
     private contactService: ContactService,
   ) {}
+
+  async isAddressExists(
+    contactId: number,
+    addressId: number,
+  ): Promise<Address> {
+    const address = await this.prismaService.address.findFirst({
+      where: {
+        id: addressId,
+        contact_id: contactId,
+      },
+    });
+
+    if (!address) {
+      throw new HttpException('Address not found', 404);
+    }
+
+    return address;
+  }
 
   async create(
     user: User,
@@ -55,18 +74,45 @@ export class AddressService {
       request,
     );
 
-    await this.contactService.isContactExists(user.id, getRequest.contact_id);
+    const contact = await this.contactService.isContactExists(
+      user.id,
+      getRequest.contact_id,
+    );
 
-    const address = await this.prismaService.address.findFirst({
+    const address = await this.isAddressExists(
+      contact.id,
+      getRequest.address_id,
+    );
+
+    return toAddressResponse(address);
+  }
+
+  async update(
+    user: User,
+    request: UpdateAddressRequest,
+  ): Promise<AddressResponse> {
+    this.logger.debug(
+      `AddressService.update: ${JSON.stringify(user)}, ${JSON.stringify(request)}`,
+    );
+    const updateRequest: UpdateAddressRequest = this.validationService.validate(
+      AddressValidation.UPDATE,
+      request,
+    );
+
+    const contact = await this.contactService.isContactExists(
+      user.id,
+      updateRequest.contact_id,
+    );
+
+    let address = await this.isAddressExists(contact.id, updateRequest.id);
+
+    address = await this.prismaService.address.update({
       where: {
-        id: getRequest.address_id,
-        contact_id: getRequest.contact_id,
+        id: address.id,
+        contact_id: address.contact_id,
       },
+      data: updateRequest,
     });
-
-    if (!address) {
-      throw new HttpException('Address not found', 404);
-    }
 
     return toAddressResponse(address);
   }

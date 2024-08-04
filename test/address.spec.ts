@@ -71,7 +71,7 @@ describe('AddressController', () => {
       expect(response.body).toBeDefined();
     });
 
-    it('should be able to create contact', async () => {
+    it('should be able to create address', async () => {
       const contact = await testService.getContact();
       const response = await request(app.getHttpServer())
         .post(`/v1/contact/${contact.id}/address`)
@@ -145,6 +145,101 @@ describe('AddressController', () => {
       expect(response.body.data.city).toBe('Jakarta');
       expect(response.body.data.province).toBe('DKI Jakarta');
       expect(response.body.data.country).toBe('Indonesia');
+      expect(response.body.data.postal_code).toBe('12345');
+    });
+  });
+
+  describe('PUT /v1/contact/:contactId/address/:addressId', () => {
+    beforeEach(async () => {
+      await testService.deleteAddress();
+      await testService.deleteContact();
+      await testService.deleteUser();
+      await testService.createUser();
+      await testService.createContact();
+      await testService.createAddress();
+    });
+
+    it('should be rejected if request is invalid', async () => {
+      const contact = await testService.getContact();
+      const address = await testService.createAddress();
+      const response = await request(app.getHttpServer())
+        .put(`/v1/contact/${contact.id}/address/${address.id}`)
+        .set('X-USER-TOKEN', 'test-token')
+        .send({
+          street: '',
+          city: '',
+          province: '',
+          country: '',
+          postal_code: '',
+        });
+
+      logger.info(response.body);
+
+      expect(response.status).toBe(400);
+      expect(response.body).toBeDefined();
+    });
+
+    it('should be rejected if contact not found', async () => {
+      const contact = await testService.getContact();
+      const address = await testService.getAddress();
+      const response = await request(app.getHttpServer())
+        .put(`/v1/contact/${contact.id + 1}/address/${address.id}`)
+        .set('X-USER-TOKEN', 'test-token')
+        .send({
+          street: 'Jl. Test Updated',
+          city: 'Jakarta Updated',
+          province: 'DKI Jakarta Updated',
+          country: 'Indonesia Updated',
+          postal_code: '12345',
+        });
+
+      logger.info(response.body);
+
+      expect(response.status).toBe(404);
+      expect(response.body).toBeDefined();
+    });
+
+    it('should be rejected if address not found', async () => {
+      const contact = await testService.getContact();
+      const address = await testService.getAddress();
+      const response = await request(app.getHttpServer())
+        .put(`/v1/contact/${contact.id}/address/${address.id + 1}`)
+        .set('X-USER-TOKEN', 'test-token')
+        .send({
+          street: 'Jl. Test Updated',
+          city: 'Jakarta Updated',
+          province: 'DKI Jakarta Updated',
+          country: 'Indonesia Updated',
+          postal_code: '12345',
+        });
+
+      logger.info(response.body);
+
+      expect(response.status).toBe(404);
+      expect(response.body).toBeDefined();
+    });
+
+    it('should be able to update address', async () => {
+      const contact = await testService.getContact();
+      const address = await testService.createAddress();
+      const response = await request(app.getHttpServer())
+        .put(`/v1/contact/${contact.id}/address/${address.id}`)
+        .set('X-USER-TOKEN', 'test-token')
+        .send({
+          street: 'Jl. Test Updated',
+          city: 'Jakarta Updated',
+          province: 'DKI Jakarta Updated',
+          country: 'Indonesia Updated',
+          postal_code: '12345',
+        });
+
+      logger.info(response.body);
+
+      expect(response.status).toBe(200);
+      expect(response.body.data.street).toBe('Jl. Test Updated');
+      expect(response.body.data.city).toBe('Jakarta Updated');
+      expect(response.body.data.province).toBe('DKI Jakarta Updated');
+      expect(response.body.data.country).toBe('Indonesia Updated');
       expect(response.body.data.postal_code).toBe('12345');
     });
   });

@@ -23,6 +23,16 @@ export class GetAddressRequest {
   address_id: number;
 }
 
+export class UpdateAddressRequest {
+  id: number;
+  contact_id: number;
+  street?: string;
+  city?: string;
+  province?: string;
+  country: string;
+  postal_code: string;
+}
+
 export function toAddressResponse(address: Address): AddressResponse {
   return {
     id: address.id,
