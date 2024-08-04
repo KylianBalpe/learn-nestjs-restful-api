@@ -293,4 +293,39 @@ describe('AddressController', () => {
       expect(response.body.message).toBe('Address deleted successfully');
     });
   });
+
+  describe('GET /v1/contact/:contactId/addresses', () => {
+    beforeEach(async () => {
+      await testService.deleteAddress();
+      await testService.deleteContact();
+      await testService.deleteUser();
+      await testService.createUser();
+      await testService.createContact();
+      await testService.createAddress();
+    });
+
+    it('should be rejected if contact not found', async () => {
+      const contact = await testService.getContact();
+      const response = await request(app.getHttpServer())
+        .get(`/v1/contact/${contact.id + 1}/addresses`)
+        .set('X-USER-TOKEN', 'test-token');
+
+      logger.info(response.body);
+
+      expect(response.status).toBe(404);
+      expect(response.body).toBeDefined();
+    });
+
+    it('should be able to get addresses', async () => {
+      const contact = await testService.getContact();
+      const response = await request(app.getHttpServer())
+        .get(`/v1/contact/${contact.id}/addresses`)
+        .set('X-USER-TOKEN', 'test-token');
+
+      logger.info(response.body);
+
+      expect(response.status).toBe(200);
+      expect(response.body.data).toHaveLength(1);
+    });
+  });
 });
